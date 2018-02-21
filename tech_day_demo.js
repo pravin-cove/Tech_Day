@@ -75,6 +75,8 @@ function onConnect(error) {
       var service = services[serviceIndex];
       var serviceInfo = service.uuid;
       console.log('Service found:  ' + serviceInfo + (' (' + service.name + ')'));
+      serviceIndex++;
+      callback();
     }, function (err) {
       peripheral.disconnect();
     } )
