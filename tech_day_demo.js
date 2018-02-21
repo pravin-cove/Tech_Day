@@ -15,7 +15,8 @@ noble.on('discover', function(peripheral) {
   if (peripheral.advertisement.localName === peripheralName) {
     noble.stopScanning();
 
-    console.log('peripheral with ID ' + peripheral.id + ' found');
+    console.log('Titan WE found');
+    
     var advertisement = peripheral.advertisement;
 
     var localName = advertisement.localName;
@@ -25,23 +26,23 @@ noble.on('discover', function(peripheral) {
     var serviceUuids = advertisement.serviceUuids;
 
     if (localName) {
-      console.log('  Local Name        = ' + localName);
+      console.log('Name: ' + localName);
     }
 
     if (txPowerLevel) {
-      console.log('  TX Power Level    = ' + txPowerLevel);
+      console.log('Power level: ' + txPowerLevel);
     }
 
     if (manufacturerData) {
-      console.log('  Manufacturer Data = ' + manufacturerData.toString('hex'));
+      console.log('Manufacturer Data: ' + manufacturerData.toString('hex'));
     }
 
     if (serviceData) {
-      console.log('  Service Data      = ' + JSON.stringify(serviceData, null, 2));
+      console.log('Service Data: ' + JSON.stringify(serviceData, null, 2));
     }
 
     if (serviceUuids) {
-      console.log('  Service UUIDs     = ' + serviceUuids);
+      console.log('Service UUIDs: ' + serviceUuids);
     }
 
     console.log();
@@ -52,8 +53,32 @@ noble.on('discover', function(peripheral) {
   }
 });
 
+function onDisConnected() {
+  console.log('Titan WE disconnected');
+}
+
 function connectToPeripheral(peripheral) {
-	
+	peripheral.on('disconnect', onDisConnected());
+
+  peripheral.connect();
+}
+
+function onConnect(error) {
+
+  console.log('Connected to Titan WE')
+
+  peripheral.discoverServices([], function(error, services) {
+    var serviceIndex = 0;
+    async.whilst(function() {
+      return (serviceIndex < services.length)
+    }, function(callback) {
+      var service = services[serviceIndex];
+      var serviceInfo = service.uuid;
+      console.log('Service found:  ' + serviceInfo + (' (' + service.name + ')'));
+    }, function (err) {
+      peripheral.disconnect();
+    } )
+  });
 }
 
 function explore(peripheral) {
