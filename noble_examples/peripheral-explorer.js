@@ -60,7 +60,7 @@ function explore(peripheral) {
   });
 
   peripheral.connect(function(error) {
-    peripheral.discoverServices([], function(error, services) {
+    peripheral.discoverServices(['000056ef00001000800000805f9b34fb'], function(error, services) {
       var serviceIndex = 0;
 
       async.whilst(
@@ -76,9 +76,9 @@ function explore(peripheral) {
           }
           console.log(serviceInfo);
 
-          service.discoverCharacteristics([], function(error, characteristics) {
+          service.discoverCharacteristics(['000034e200001000800000805f9b34fb'], function(error, characteristics) {
             var characteristicIndex = 0;
-
+	    var buttonPushNotification = characteristics[0];
             async.whilst(
               function () {
                 return (characteristicIndex < characteristics.length);
@@ -140,6 +140,12 @@ function explore(peripheral) {
                     callback();
                   }
                 ]);
+		buttonPushNotification.on('data', function(data, isNotification) {
+			console.log('Notification received' + data);
+		});
+		buttonPushNotification.subscribe(function(error){
+			console.log('Subscribed to button press');
+		});
               },
               function(error) {
                 serviceIndex++;
@@ -149,7 +155,9 @@ function explore(peripheral) {
           });
         },
         function (err) {
-          peripheral.disconnect();
+          //peripheral.disconnect();
+	console.log('Finished');
+
         }
       );
     });
