@@ -1,5 +1,10 @@
 var async = require('async');
 var noble = require('noble');
+ var Gpio = require('onoff').Gpio,
+	tv = new Gpio(17,'out'),
+	ac = new Gpio(27, 'out'),
+	light = new Gpio(22, 'out');
+var isFirstNotificationAfterConnect = false;
 
 var peripheralIdOrAddress = 'Clove_1_90060SL01';
 
@@ -60,6 +65,7 @@ function explore(peripheral) {
   });
 
   peripheral.connect(function(error) {
+  isFirstNotificationAfterConnect = true;
     peripheral.discoverServices(['000056ef00001000800000805f9b34fb'], function(error, services) {
       var serviceIndex = 0;
 
@@ -141,7 +147,54 @@ function explore(peripheral) {
                   }
                 ]);
 		buttonPushNotification.on('data', function(data, isNotification) {
-			console.log('Notification received' + data);
+			if(!isFirstNotificationAfterConnect) {
+			    console.log('Notification received ' + data);
+				if (data == 'S1') {
+					console.log('Toggling TV');
+					tv.read(function(err, value){
+						if (err) {
+							console.log('Error reading TV led value');
+							peripheral.disconnect();
+						}
+						tv.write(value ^ 1, function(err) {
+							if (err) {
+								console.log('Error writing TV led value');
+								peripheral.disconnect();
+							}
+						});
+					});
+				} else if (data == 'S2') {
+					console.log('Toggling Light');
+						light.read(function(err, value){
+						if (err) {
+							console.log('Error reading Light led value');
+							peripheral.disconnect();
+						}
+						light.write(value ^ 1, function(err) {
+							if (err) {
+								console.log('Error writing Light led value');
+								peripheral.disconnect();
+							}
+						});
+					});
+				} else if (data == 'S3') {
+					console.log('Toggling AC');
+						ac.read(function(err, value){
+						if (err) {
+							console.log('Error reading AC led value');
+							peripheral.disconnect();
+						}
+						ac.write(value ^ 1, function(err) {
+							if (err) {
+								console.log('Error writing AC led value');
+								peripheral.disconnect();
+							}
+						});
+					});
+				}
+			} else {
+				isFirstNotificationAfterConnect = false;
+			}
 		});
 		buttonPushNotification.subscribe(function(error){
 			console.log('Subscribed to button press');
