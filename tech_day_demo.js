@@ -2,9 +2,11 @@ var async = require('async');
 var noble = require('noble');
 
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express();
 var port = process.env.PORT || 3000;
 var router = express.Router();
+app.use(bodyParser);
 
  var Gpio = require('onoff').Gpio,
 	tv = new Gpio(17,'out'),
@@ -25,6 +27,22 @@ router.get('/', function(req, res) {
 
 router.get('/currentState', (req, res) => {
   
+  var tvLed = tv.readSync();
+  var lightLed = light.readSync();
+  var acLed = ac.readSync();
+
+  res.json({ 
+    status: 'OK',
+    tv: !!tvLed,
+    light: !!lightLed,
+    ac: !!acLed
+  });
+});
+
+router.post('/toggleState', (req, res) => {
+  
+  console.log('Incoming request : ' + (req.body));
+
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
