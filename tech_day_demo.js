@@ -3,13 +3,12 @@ var noble = require('noble');
  var Gpio = require('onoff').Gpio,
 	tv = new Gpio(17,'out'),
 	ac = new Gpio(27, 'out'),
-  light = new Gpio(22, 'out');
-  
+	light = new Gpio(22, 'out');
 var isFirstNotificationAfterConnect = false;
 
-var deviceName = 'Clove_1_90060SL01';
+var peripheralIdOrAddress = 'Clove_1_90060SL01';
 
-console.log('Looking for ' + deviceName);
+console.log('  peripheralIdOrAddress        = ' + peripheralIdOrAddress);
 
 noble.on('stateChange', function(state) {
   if (state === 'poweredOn') {
@@ -19,32 +18,56 @@ noble.on('stateChange', function(state) {
   }
 });
 
-noble.on('discover', onDiscovered(peripheral));
-
-function onDiscovered(peripheral) {
-  if (peripheral.advertisement.localName === deviceName) {
-    // Stoping scan since the device is discovered
+noble.on('discover', function(peripheral) {
+  if (peripheral.advertisement.localName === peripheralIdOrAddress) {
     noble.stopScanning();
-    console.log('Cove device ' + peripheral.advertisement.localName + ' found');
+
+    console.log('peripheral with ID ' + peripheral.id + ' found');
+    var advertisement = peripheral.advertisement;
+
+    var localName = advertisement.localName;
+    var txPowerLevel = advertisement.txPowerLevel;
+    var manufacturerData = advertisement.manufacturerData;
+    var serviceData = advertisement.serviceData;
+    var serviceUuids = advertisement.serviceUuids;
+
+    if (localName) {
+      console.log('  Local Name        = ' + localName);
+    }
+
+    if (txPowerLevel) {
+      console.log('  TX Power Level    = ' + txPowerLevel);
+    }
+
+    if (manufacturerData) {
+      console.log('  Manufacturer Data = ' + manufacturerData.toString('hex'));
+    }
+
+    if (serviceData) {
+      console.log('  Service Data      = ' + JSON.stringify(serviceData, null, 2));
+    }
+
+    if (serviceUuids) {
+      console.log('  Service UUIDs     = ' + serviceUuids);
+    }
+
+    console.log();
+
     explore(peripheral);
   }
-}
-
-function onDeviceDisconnected() {
-  console.log('Disconnected from ' + peripheral.advertisement.localName);
-  process.exit(0);
-}
+});
 
 function explore(peripheral) {
-  peripheral.on('disconnect', onDeviceDisconnected());
+  console.log('services and characteristics:');
 
-  peripheral.connect(onDeviceConnected(error));
+  peripheral.on('disconnect', function() {
+    process.exit(0);
+  });
 
-  function onDeviceConnected(error) {
-    console.log('Connected to ' + peripheral.advertisement.localName);
-    isFirstNotificationAfterConnect = true;
+  peripheral.connect(function(error) {
+  isFirstNotificationAfterConnect = true;
     peripheral.discoverServices(['000056ef00001000800000805f9b34fb'], function(error, services) {
-    var serviceIndex = 0;
+      var serviceIndex = 0;
 
       async.whilst(
         function () {
@@ -57,6 +80,7 @@ function explore(peripheral) {
           if (service.name) {
             serviceInfo += ' (' + service.name + ')';
           }
+          console.log(serviceInfo);
 
           service.discoverCharacteristics(['000034e200001000800000805f9b34fb'], function(error, characteristics) {
             var characteristicIndex = 0;
@@ -190,5 +214,5 @@ function explore(peripheral) {
         }
       );
     });
-  }
+  });
 }
