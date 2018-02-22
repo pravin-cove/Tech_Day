@@ -1,3 +1,5 @@
+import { request } from 'http';
+
 var async = require('async');
 var noble = require('noble');
 
@@ -44,7 +46,20 @@ router.get('/currentState', (req, res) => {
 
 router.post('/toggleState', (req, res) => {
 
+  if (!req.body.field || !req.body.value) return res.sendStatus(400);
+
   console.log('Incoming request : ' + req.body.field);
+
+  if(req.body.field === 'light') {
+    lightLed.writeSync(+req.body.value)
+  } else if (req.body.field === 'tv'){
+    tvLed.writeSync(+req.body.value)
+  } else if(req.body.field === 'ac') {
+    acLed.writeSync(+req.body.value)
+  } else {
+    return res.sendStatus(400);
+  }
+  
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
