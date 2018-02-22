@@ -44,23 +44,29 @@ router.get('/currentState', (req, res) => {
 
 router.post('/toggleState', (req, res) => {
 
-  if (!req.body.field || !req.body.value) return res.sendStatus(400);
+  if (!req.body.toggleField) return res.sendStatus(400);
 
   console.log('Incoming request : ' + req.body.field);
 
-  if(req.body.field === 'light') {
-    light.writeSync(+req.body.value)
-  } else if (req.body.field === 'tv'){
-    tv.writeSync(+req.body.value)
-  } else if(req.body.field === 'ac') {
-    ac.writeSync(+req.body.value)
-  } else {
-    return res.sendStatus(400);
-  }
-  
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
+
+  if(req.body.toggleField === 'light') {
+    console.log('Toggling Light from API');
+    light.writeSync(lightLed^1)
+    lightLed = lightLed^1;
+  } else if (req.body.field === 'tv'){
+    console.log('Toggling TV from API');
+    tv.writeSync(tvLed^1)
+    tvLed = tvLed^1;
+  } else if(req.body.field === 'ac') {
+    console.log('Toggling AC from API');
+    ac.writeSync(ac^1)
+    acLed = acLed^1;
+  } else {
+    return res.sendStatus(400);
+  }
 
   res.json({ 
     status: 'OK',
