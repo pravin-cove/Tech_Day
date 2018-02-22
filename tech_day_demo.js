@@ -23,7 +23,7 @@ function onStateChanged(state) {
 }
 
 function onDeviceDiscovered(device){
-  if (device.advertisement.localName === peripheralIdOrAddress) {
+  if (device.advertisement.localName === device) {
     noble.stopScanning();
     connect(device);
   }
