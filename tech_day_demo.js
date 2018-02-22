@@ -31,9 +31,9 @@ router.get('/currentState', (req, res) => {
 
   res.json({ 
     status: 'OK',
-    tv: tvLed,
-    light: lightLed,
-    ac: acLed
+    tv: !!tvLed,
+    light: !!lightLed,
+    ac: !!acLed
   });
 });
 
