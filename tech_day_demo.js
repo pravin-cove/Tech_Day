@@ -1,5 +1,3 @@
-import { request } from 'http';
-
 var async = require('async');
 var noble = require('noble');
 
