@@ -49,11 +49,11 @@ router.post('/toggleState', (req, res) => {
   console.log('Incoming request : ' + req.body.field);
 
   if(req.body.field === 'light') {
-    lightLed.writeSync(+req.body.value)
+    light.writeSync(+req.body.value)
   } else if (req.body.field === 'tv'){
-    tvLed.writeSync(+req.body.value)
+    tv.writeSync(+req.body.value)
   } else if(req.body.field === 'ac') {
-    acLed.writeSync(+req.body.value)
+    ac.writeSync(+req.body.value)
   } else {
     return res.sendStatus(400);
   }
