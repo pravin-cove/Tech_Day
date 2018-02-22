@@ -6,11 +6,13 @@ var noble = require('noble');
 	light = new Gpio(22, 'out');
 var isFirstNotificationAfterConnect = false;
 
-var peripheralIdOrAddress = 'Clove_1_90060SL01';
+var CoveDeviceName = 'Clove_1_90060SL01';
 
-console.log('Searching for  ' + peripheralIdOrAddress);
+console.log('   Searching for ' + CoveDeviceName);
 
 noble.on('stateChange', (state) => onStateChanged(state));
+
+noble.on('discover', (peripheral) => onDeviceDiscovered(peripheral));
 
 function onStateChanged(state) {
   if (state === 'poweredOn') {
@@ -20,53 +22,22 @@ function onStateChanged(state) {
   }
 }
 
-noble.on('discover', (peripheral) => {
-  if (peripheral.advertisement.localName === peripheralIdOrAddress) {
+function onDeviceDiscovered(device){
+  if (device.advertisement.localName === peripheralIdOrAddress) {
     noble.stopScanning();
-
-    console.log('peripheral with ID ' + peripheral.id + ' found');
-    var advertisement = peripheral.advertisement;
-
-    var localName = advertisement.localName;
-    var txPowerLevel = advertisement.txPowerLevel;
-    var manufacturerData = advertisement.manufacturerData;
-    var serviceData = advertisement.serviceData;
-    var serviceUuids = advertisement.serviceUuids;
-
-    if (localName) {
-      console.log('  Local Name        = ' + localName);
-    }
-
-    if (txPowerLevel) {
-      console.log('  TX Power Level    = ' + txPowerLevel);
-    }
-
-    if (manufacturerData) {
-      console.log('  Manufacturer Data = ' + manufacturerData.toString('hex'));
-    }
-
-    if (serviceData) {
-      console.log('  Service Data      = ' + JSON.stringify(serviceData, null, 2));
-    }
-
-    if (serviceUuids) {
-      console.log('  Service UUIDs     = ' + serviceUuids);
-    }
-
-    console.log();
-
-    explore(peripheral);
+    connect(device);
   }
-});
+}
 
-function explore(peripheral) {
-  console.log('services and characteristics:');
+function onDeviceDisconnected(){
+  console.log('   Device disconnected.')
+  process.exit(0);
+}
 
-  peripheral.on('disconnect', function() {
-    process.exit(0);
-  });
+function connect(device) {
+  device.on('disconnect', () => onDeviceDisconnected());
 
-  peripheral.connect(function(error) {
+  device.connect((error) => {
   isFirstNotificationAfterConnect = true;
     peripheral.discoverServices(['000056ef00001000800000805f9b34fb'], function(error, services) {
       var serviceIndex = 0;
