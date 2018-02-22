@@ -43,7 +43,7 @@ router.post('/toggleState', jsonParser, (req, res) => {
 
   if(!req.body) return res.sendStatus(400)
 
-  console.log('Incoming request : ' + (req.body).json);
+  console.log('Incoming request : ' + res.body);
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
