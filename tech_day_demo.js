@@ -56,11 +56,11 @@ router.post('/toggleState', (req, res) => {
     console.log('Toggling Light from API');
     light.writeSync(lightLed^1)
     lightLed = lightLed^1;
-  } else if (req.body.field === 'tv'){
+  } else if (req.body.toggleField === 'tv'){
     console.log('Toggling TV from API');
     tv.writeSync(tvLed^1)
     tvLed = tvLed^1;
-  } else if(req.body.field === 'ac') {
+  } else if(req.body.toggleField === 'ac') {
     console.log('Toggling AC from API');
     ac.writeSync(ac^1)
     acLed = acLed^1;
