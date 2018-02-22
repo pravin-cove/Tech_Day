@@ -21,6 +21,8 @@ router.get('/', function(req, res) {
 });
 
 app.use('/api', router);
+app.listen(port);
+
 console.log('Listening on ' + port);
 
 noble.on('stateChange', function(state) {
