@@ -8,17 +8,19 @@ var isFirstNotificationAfterConnect = false;
 
 var peripheralIdOrAddress = 'Clove_1_90060SL01';
 
-console.log('  peripheralIdOrAddress        = ' + peripheralIdOrAddress);
+console.log('Searching for  ' + peripheralIdOrAddress);
 
-noble.on('stateChange', function(state) {
+noble.on('stateChange', (state) => onStateChanged(state));
+
+function onStateChanged(state) {
   if (state === 'poweredOn') {
     noble.startScanning();
   } else {
     noble.stopScanning();
   }
-});
+}
 
-noble.on('discover', function(peripheral) {
+noble.on('discover', (peripheral) => {
   if (peripheral.advertisement.localName === peripheralIdOrAddress) {
     noble.stopScanning();
 
