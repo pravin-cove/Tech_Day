@@ -42,8 +42,8 @@ router.get('/currentState', (req, res) => {
 router.post('/toggleState', (req, res) => {
 
   if(!req.body) return res.sendStatus(400)
-  
-  console.log('Incoming request : ' + (req.body));
+
+  console.log('Incoming request : ' + (req.body).json);
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
