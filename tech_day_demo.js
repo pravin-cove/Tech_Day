@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var app = express();
 var port = process.env.PORT || 3000;
 var router = express.Router();
-app.use(bodyParser);
+app.use(bodyParser.json());
 
  var Gpio = require('onoff').Gpio,
 	tv = new Gpio(17,'out'),
@@ -40,9 +40,10 @@ router.get('/currentState', (req, res) => {
 });
 
 router.post('/toggleState', (req, res) => {
+
+  if(!req.body) return res.sendStatus(400)
   
   console.log('Incoming request : ' + (req.body));
-
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
