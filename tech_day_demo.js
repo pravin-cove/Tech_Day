@@ -1,43 +1,83 @@
 var async = require('async');
 var noble = require('noble');
+
+var express = require('express');
+var app = express();
+var port = process.env.PORT || 3000;
+var router = express.Router();
+
  var Gpio = require('onoff').Gpio,
 	tv = new Gpio(17,'out'),
 	ac = new Gpio(27, 'out'),
 	light = new Gpio(22, 'out');
 var isFirstNotificationAfterConnect = false;
 
-var CoveDeviceName = 'Clove_1_90060SL01';
+var peripheralIdOrAddress = 'Clove_1_90060SL01';
 
-console.log('   Searching for ' + CoveDeviceName);
+console.log('  peripheralIdOrAddress        = ' + peripheralIdOrAddress);
 
-noble.on('stateChange', (state) => onStateChanged(state));
+router.get('/', function(req, res) {
+  res.json({ message: 'You are running dangerously low on beer!' });
+});
 
-noble.on('discover', (peripheral) => onDeviceDiscovered(peripheral));
+app.use('/api', router);
+console.log('Listening on ' + port);
 
-function onStateChanged(state) {
+noble.on('stateChange', function(state) {
   if (state === 'poweredOn') {
     noble.startScanning();
   } else {
     noble.stopScanning();
   }
-}
+});
 
-function onDeviceDiscovered(device){
-  if (device.advertisement.localName === device) {
+noble.on('discover', function(peripheral) {
+  if (peripheral.advertisement.localName === peripheralIdOrAddress) {
     noble.stopScanning();
-    connect(device);
+
+    console.log('peripheral with ID ' + peripheral.id + ' found');
+    var advertisement = peripheral.advertisement;
+
+    var localName = advertisement.localName;
+    var txPowerLevel = advertisement.txPowerLevel;
+    var manufacturerData = advertisement.manufacturerData;
+    var serviceData = advertisement.serviceData;
+    var serviceUuids = advertisement.serviceUuids;
+
+    if (localName) {
+      console.log('  Local Name        = ' + localName);
+    }
+
+    if (txPowerLevel) {
+      console.log('  TX Power Level    = ' + txPowerLevel);
+    }
+
+    if (manufacturerData) {
+      console.log('  Manufacturer Data = ' + manufacturerData.toString('hex'));
+    }
+
+    if (serviceData) {
+      console.log('  Service Data      = ' + JSON.stringify(serviceData, null, 2));
+    }
+
+    if (serviceUuids) {
+      console.log('  Service UUIDs     = ' + serviceUuids);
+    }
+
+    console.log();
+
+    explore(peripheral);
   }
-}
+});
 
-function onDeviceDisconnected(){
-  console.log('   Device disconnected.')
-  process.exit(0);
-}
+function explore(peripheral) {
+  console.log('services and characteristics:');
 
-function connect(device) {
-  device.on('disconnect', () => onDeviceDisconnected());
+  peripheral.on('disconnect', function() {
+    process.exit(0);
+  });
 
-  device.connect((error) => {
+  peripheral.connect(function(error) {
   isFirstNotificationAfterConnect = true;
     peripheral.discoverServices(['000056ef00001000800000805f9b34fb'], function(error, services) {
       var serviceIndex = 0;
