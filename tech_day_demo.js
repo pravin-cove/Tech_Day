@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var app = express();
 var port = process.env.PORT || 3000;
 var router = express.Router();
-app.use(bodyParser.json());
+var jsonParser = bodyParser.json();
 
  var Gpio = require('onoff').Gpio,
 	tv = new Gpio(17,'out'),
@@ -39,7 +39,7 @@ router.get('/currentState', (req, res) => {
   });
 });
 
-router.post('/toggleState', (req, res) => {
+router.post('/toggleState', jsonParser, (req, res) => {
 
   if(!req.body) return res.sendStatus(400)
 
