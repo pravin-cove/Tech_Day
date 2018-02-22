@@ -25,17 +25,15 @@ router.get('/', function(req, res) {
 
 router.get('/currentState', (req, res) => {
   
+  var tvLed = tv.readSync();
+  var lightLed = light.readSync();
+  var acLed = ac.readSync();
+
   res.json({ 
     status: 'OK',
-    tv: tv.read((err, value) => {
-      value
-    }),
-    light: light.read((err, value) => {
-      value
-    }),
-    ac: ac.read((err, value) => {
-      value
-    })
+    tv: tvLed,
+    light: lightLed,
+    ac: acLed
   });
 });
 
