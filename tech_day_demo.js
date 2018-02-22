@@ -17,7 +17,26 @@ var peripheralIdOrAddress = 'Clove_1_90060SL01';
 console.log('  peripheralIdOrAddress        = ' + peripheralIdOrAddress);
 
 router.get('/', function(req, res) {
-  res.json({ message: 'You are running dangerously low on beer!' });
+  res.json({ 
+    status: 'OK',
+    message: 'APIs are up and running.' 
+  });
+});
+
+router.get('/currentState', (req, res) => {
+  
+  res.json({ 
+    status: 'OK',
+    tv: tv.read((err, value) => {
+      value
+    }),
+    light: light.read((err, value) => {
+      value
+    }),
+    ac: ac.read((err, value) => {
+      value
+    })
+  });
 });
 
 app.use('/api', router);
