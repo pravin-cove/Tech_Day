@@ -93,7 +93,7 @@ io.on('connection', function(socket){
       toggleState(msg);
       socket.emit('message', JSON.stringify(obj))
     });
-    socket.on('connect', function(){
+    socket.on('join', function(data){
       console.log('toggleState called');
       toggleState('');
     });
