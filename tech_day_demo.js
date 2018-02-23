@@ -2,14 +2,16 @@ var async = require('async');
 var noble = require('noble');
 
 var express = require('express');
-var bodyParser = require('body-parser');
+// var bodyParser = require('body-parser');
 var app = express();
-var port = process.env.PORT || 3000;
-var router = express.Router();
+var port = process.env.PORT || 8080;
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+// var router = express.Router();
 
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+// app.use(bodyParser.urlencoded({
+//   extended: true
+// }));
 
  var Gpio = require('onoff').Gpio,
 	tv = new Gpio(17,'out'),
@@ -21,65 +23,112 @@ var peripheralIdOrAddress = 'Clove_1_90060SL01';
 
 console.log('  peripheralIdOrAddress        = ' + peripheralIdOrAddress);
 
-router.get('/', function(req, res) {
-  res.json({ 
-    status: 'OK',
-    message: 'APIs are up and running.' 
-  });
-});
+// router.get('/', function(req, res) {
+//   res.json({ 
+//     status: 'OK',
+//     message: 'APIs are up and running.' 
+//   });
+// });
 
-router.get('/currentState', (req, res) => {
+// router.get('/currentState', (req, res) => {
   
-  var tvLed = tv.readSync();
-  var lightLed = light.readSync();
-  var acLed = ac.readSync();
+//   var tvLed = tv.readSync();
+//   var lightLed = light.readSync();
+//   var acLed = ac.readSync();
 
-  res.json({ 
-    status: 'OK',
-    tv: !!tvLed,
-    light: !!lightLed,
-    ac: !!acLed
-  });
+//   res.json({ 
+//     status: 'OK',
+//     tv: !!tvLed,
+//     light: !!lightLed,
+//     ac: !!acLed
+//   });
+// });
+
+// router.post('/toggleState', (req, res) => {
+
+//   if (!req.body.toggleField) return res.sendStatus(400);
+
+//   console.log('Incoming request : ' + req.body.field);
+
+//   var tvLed = tv.readSync();
+//   var lightLed = light.readSync();
+//   var acLed = ac.readSync();
+
+//   if(req.body.toggleField === 'light') {
+//     console.log('Toggling Light from API');
+//     light.writeSync(lightLed^1)
+//     lightLed = lightLed^1;
+//   } else if (req.body.toggleField === 'tv'){
+//     console.log('Toggling TV from API');
+//     tv.writeSync(tvLed^1)
+//     tvLed = tvLed^1;
+//   } else if(req.body.toggleField === 'ac') {
+//     console.log('Toggling AC from API');
+//     ac.writeSync(acLed^1)
+//     acLed = acLed^1;
+//   } else {
+//     return res.sendStatus(400);
+//   }
+
+//   res.json({ 
+//     status: 'OK',
+//     tv: !!tvLed,
+//     light: !!lightLed,
+//     ac: !!acLed
+//   });
+// });
+
+// app.use('/api', router);
+// app.listen(port);
+
+/*
+ * Start of socket code
+ */
+io.on('connection', function(socket){
+  console.log('a device connected');
+  socket.on('disconnect', function(){
+      console.log('a device disconnected');
+    });
+    socket.on('message', function(msg){
+      var request = JSON.parse(msg);
+      toggleState(msg);
+      socket.emit('message', JSON.stringify(obj))
+    });
 });
 
-router.post('/toggleState', (req, res) => {
-
-  if (!req.body.toggleField) return res.sendStatus(400);
-
-  console.log('Incoming request : ' + req.body.field);
-
+function toggleState(msg) {
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
-
-  if(req.body.toggleField === 'light') {
-    console.log('Toggling Light from API');
+  if(request.toggleField === 'light'){
     light.writeSync(lightLed^1)
     lightLed = lightLed^1;
-  } else if (req.body.toggleField === 'tv'){
-    console.log('Toggling TV from API');
-    tv.writeSync(tvLed^1)
-    tvLed = tvLed^1;
-  } else if(req.body.toggleField === 'ac') {
-    console.log('Toggling AC from API');
+  } else if(request.toggleField === 'tv'){
+      tv.writeSync(tvLed^1)
+      tvLed = tvLed^1;
+  } else if(request.toggleField === 'ac'){
     ac.writeSync(acLed^1)
     acLed = acLed^1;
-  } else {
-    return res.sendStatus(400);
   }
-
-  res.json({ 
+  var clients = io.sockets.clients();
+  var result = { 
     status: 'OK',
     tv: !!tvLed,
     light: !!lightLed,
     ac: !!acLed
-  });
+  }
+  for ( i = 0; i < clients.length; i++ ) {
+    clients[i].emit('message', JSON.stringify(result));
+  }
+}
+
+http.listen(port, () => {
+  console.log('listening on : ' + port);
 });
 
-app.use('/api', router);
-app.listen(port);
-
-console.log('Listening on ' + port);
+ /*
+ * End of socket code
+ */
 
 noble.on('stateChange', function(state) {
   if (state === 'poweredOn') {
@@ -222,46 +271,13 @@ function explore(peripheral) {
 			    console.log('Notification received ' + data);
 				if (data == 'S1') {
 					console.log('Toggling TV');
-					tv.read(function(err, value){
-						if (err) {
-							console.log('Error reading TV led value');
-							peripheral.disconnect();
-						}
-						tv.write(value ^ 1, function(err) {
-							if (err) {
-								console.log('Error writing TV led value');
-								peripheral.disconnect();
-							}
-						});
-					});
+					toggleState('tv');
 				} else if (data == 'S2') {
 					console.log('Toggling Light');
-						light.read(function(err, value){
-						if (err) {
-							console.log('Error reading Light led value');
-							peripheral.disconnect();
-						}
-						light.write(value ^ 1, function(err) {
-							if (err) {
-								console.log('Error writing Light led value');
-								peripheral.disconnect();
-							}
-						});
-					});
+          toggleState('light');
 				} else if (data == 'S3') {
 					console.log('Toggling AC');
-						ac.read(function(err, value){
-						if (err) {
-							console.log('Error reading AC led value');
-							peripheral.disconnect();
-						}
-						ac.write(value ^ 1, function(err) {
-							if (err) {
-								console.log('Error writing AC led value');
-								peripheral.disconnect();
-							}
-						});
-					});
+          toggleState('ac');
 				}
 			} else {
 				isFirstNotificationAfterConnect = false;
