@@ -86,7 +86,6 @@ console.log('  peripheralIdOrAddress        = ' + peripheralIdOrAddress);
  */
 io.on('connection', function(socket){
   console.log('a device connected');
-  toggleState('');
   socket.on('disconnect', function(){
       console.log('a device disconnected');
     });
@@ -95,9 +94,14 @@ io.on('connection', function(socket){
       toggleState(request);
       socket.emit('message', JSON.stringify(obj))
     });
+    socket.on('connect', function(){
+      console.log('toggleState called');
+      toggleState('');
+    });
 });
 
 function toggleState(request) {
+  console.log('inside ToggleState');
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
