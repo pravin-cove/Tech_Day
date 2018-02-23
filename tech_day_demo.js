@@ -91,12 +91,12 @@ io.on('connection', function(socket){
     });
     socket.on('message', function(msg){
       var request = JSON.parse(msg);
-      toggleState(msg);
+      toggleState(request);
       socket.emit('message', JSON.stringify(obj))
     });
 });
 
-function toggleState(msg) {
+function toggleState(request) {
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
