@@ -86,16 +86,13 @@ console.log('  peripheralIdOrAddress        = ' + peripheralIdOrAddress);
  */
 io.on('connection', function(socket){
   console.log('a device connected');
+  toggleState('');
   socket.on('disconnect', function(){
       console.log('a device disconnected');
     });
     socket.on('message', function(msg){
       toggleState(msg);
       socket.emit('message', JSON.stringify(obj))
-    });
-    socket.on('join', function(data){
-      console.log('toggleState called');
-      toggleState('');
     });
 });
 
@@ -114,16 +111,13 @@ function toggleState(request) {
     ac.writeSync(acLed^1)
     acLed = acLed^1;
   }
-  var clients = io.sockets.clients();
   var result = { 
     status: 'OK',
     tv: !!tvLed,
     light: !!lightLed,
     ac: !!acLed
   }
-  for ( i = 0; i < clients.length; i++ ) {
-    clients[i].emit('message', JSON.stringify(result));
-  }
+  io.sockets.emit('message', result);
 }
 
 http.listen(port, () => {
