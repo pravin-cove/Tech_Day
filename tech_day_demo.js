@@ -86,6 +86,7 @@ console.log('  peripheralIdOrAddress        = ' + peripheralIdOrAddress);
  */
 io.on('connection', function(socket){
   console.log('a device connected');
+  toggleState('');
   socket.on('disconnect', function(){
       console.log('a device disconnected');
     });
