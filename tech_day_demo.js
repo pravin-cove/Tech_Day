@@ -92,7 +92,6 @@ io.on('connection', function(socket){
     });
     socket.on('message', function(msg){
       toggleState(msg);
-      socket.emit('message', JSON.stringify(obj))
     });
 });
 
