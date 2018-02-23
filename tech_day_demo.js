@@ -105,13 +105,13 @@ function toggleState(request) {
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
-  if(request.toggleField === 'light'){
+  if(request.toggleField == 'light'){
     light.writeSync(lightLed^1)
     lightLed = lightLed^1;
-  } else if(request.toggleField === 'tv'){
+  } else if(request.toggleField == 'tv'){
       tv.writeSync(tvLed^1)
       tvLed = tvLed^1;
-  } else if(request.toggleField === 'ac'){
+  } else if(request.toggleField == 'ac'){
     ac.writeSync(acLed^1)
     acLed = acLed^1;
   }
