@@ -90,8 +90,7 @@ io.on('connection', function(socket){
       console.log('a device disconnected');
     });
     socket.on('message', function(msg){
-      var request = JSON.parse(msg);
-      toggleState(request);
+      toggleState(msg);
       socket.emit('message', JSON.stringify(obj))
     });
     socket.on('connect', function(){
@@ -105,13 +104,13 @@ function toggleState(request) {
   var tvLed = tv.readSync();
   var lightLed = light.readSync();
   var acLed = ac.readSync();
-  if(request.toggleField == 'light'){
+  if(request == 'light'){
     light.writeSync(lightLed^1)
     lightLed = lightLed^1;
-  } else if(request.toggleField == 'tv'){
+  } else if(request == 'tv'){
       tv.writeSync(tvLed^1)
       tvLed = tvLed^1;
-  } else if(request.toggleField == 'ac'){
+  } else if(request == 'ac'){
     ac.writeSync(acLed^1)
     acLed = acLed^1;
   }
