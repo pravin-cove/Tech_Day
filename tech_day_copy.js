@@ -1,6 +1,6 @@
 var async = require('async');
 var noble = require('noble');
-let huejay = require('huejay');
+var huejay = require('huejay');
 
 var express = require('express');
 // var bodyParser = require('body-parser');
@@ -27,7 +27,7 @@ var peripheralIdOrAddress = 'Clove_1_90060SL01';
 
 huejay.discover()
   .then(bridges => {
-    for (let bridge of bridges) {
+    for (var bridge of bridges) {
       console.log(`Bridge found -> Id: ${bridge.id}, IP: ${bridge.ip}`);
       bridgeIp = bridge.ip;
     }
@@ -39,7 +39,7 @@ huejay.discover()
       hueClient.bridge.ping()
         .then(() => {
             console.log('Successful connection');
-            client.bridge.isAuthenticated()
+            hueClient.bridge.isAuthenticated()
                 .then(() => {
                     console.log('Successful authentication');
                 })
@@ -137,12 +137,12 @@ function toggleState(request) {
   if(request == 'light'){
     // light.writeSync(lightLed^1)
     if(!!lightLed) {
-        client.lights.getById(2)
+        hueClient.lights.getById(2)
         .then(light => {
             light.brightness = 254;
             light.hue        = 32554;
             light.saturation = 254;
-            return client.lights.save(light);
+            return hueClient.lights.save(light);
         })
         .then(light => {
             console.log(`Updated light [${light.id}]`);
@@ -152,12 +152,12 @@ function toggleState(request) {
             console.log(error.stack);
         });
     } else {
-        client.lights.getById(2)
+        hueClient.lights.getById(2)
         .then(light => {
             light.brightness = 125;
             light.hue        = 15554;
             light.saturation = 125;
-            return client.lights.save(light);
+            return hueClient.lights.save(light);
         })
         .then(light => {
             console.log(`Updated light [${light.id}]`);
@@ -171,12 +171,12 @@ function toggleState(request) {
   } else if(request == 'tv'){
     //   tv.writeSync(tvLed^1)
     if(!!tvLed) {
-        client.lights.getById(1)
+        hueClient.lights.getById(1)
         .then(light => {
             light.brightness = 254;
             light.hue        = 32554;
             light.saturation = 254;
-            return client.lights.save(light);
+            return hueClient.lights.save(light);
         })
         .then(light => {
             console.log(`Updated light [${light.id}]`);
@@ -186,12 +186,12 @@ function toggleState(request) {
             console.log(error.stack);
         });
     } else {
-        client.lights.getById(1)
+        hueClient.lights.getById(1)
         .then(light => {
             light.brightness = 125;
             light.hue        = 15554;
             light.saturation = 125;
-            return client.lights.save(light);
+            return hueClient.lights.save(light);
         })
         .then(light => {
             console.log(`Updated light [${light.id}]`);
