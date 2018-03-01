@@ -1,7 +1,7 @@
 var async = require('async');
 var noble = require('noble');
 
-var peripheralIdOrAddress = 'd2842a5ba5b8';
+var peripheralIdOrAddress = '80eacd000c4f';
 
 noble.on('stateChange', function (state) {
   if (state === 'poweredOn') {
@@ -55,6 +55,7 @@ function explore(peripheral) {
 
   peripheral.on('disconnect', function () {
     console.log('Device disconnected')
+    noble.startScanning();
     // process.exit(0);
   });
 
