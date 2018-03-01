@@ -54,7 +54,8 @@ function explore(peripheral) {
   console.log('services and characteristics:');
 
   peripheral.on('disconnect', function () {
-    process.exit(0);
+    console.log('Device disconnected')
+    // process.exit(0);
   });
 
   peripheral.connect(function (error) {
