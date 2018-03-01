@@ -149,8 +149,9 @@ function explore(peripheral) {
           });
         },
         function (err) {
-          throw err;
-          // peripheral.disconnect();
+          if(err) {
+            console.log('Error : ' + err);
+          }
         }
       );
     });
