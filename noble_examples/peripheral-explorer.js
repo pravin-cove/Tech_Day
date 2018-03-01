@@ -149,7 +149,8 @@ function explore(peripheral) {
           });
         },
         function (err) {
-          peripheral.disconnect();
+          throw err;
+          // peripheral.disconnect();
         }
       );
     });
