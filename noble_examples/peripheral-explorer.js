@@ -6,7 +6,7 @@ var noble = require('noble');
 	light = new Gpio(22, 'out');
 var isFirstNotificationAfterConnect = false;
 
-var peripheralIdOrAddress = 'Clove_1_90060SL01';
+var peripheralIdOrAddress = 'RAGA_0209';
 
 console.log('  peripheralIdOrAddress        = ' + peripheralIdOrAddress);
 
